@@ -112,7 +112,7 @@ var cnItems = {
     'Security Van Heist': '保安车抢劫',
     'Street Race': '街头竞赛',
     'Street boss': '小头目',
-    'Pickpocketing': '扒窃',
+//    'Pickpocketing': '扒窃',
     'Heavy Weapons': '重型武器',
     'Heavy Sniper Mk II': '重型狙击Mk II',
     'Golf Club': '高尔夫俱乐部',
@@ -237,6 +237,10 @@ var cnExcludePostfix = [
 //小数点：([\d\.]+)
 //原样输出的字段：(.+)
 var cnRegReplace = new Map([
+    [/^\/(.+) success obtained./, '\/$1 获得成功。'],
+    [/^(.+) Assault Rifles acquired./, '\/获得 $1 突击步枪。'],
+    [/^(.+) points spent./, '\/花费了 $1 点数。'],
+    [/^(.+) Handguns acquired./, '\/获得 $1 手枪。'],
     [/^New objective for\n(.+)/, '新的目标'],
     [/^Reached rank (.+).$/, '达到等级 $1 。'],
     [/^You've gained (.+).$/, '你已经赚了 $1。'],
