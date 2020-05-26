@@ -1,0 +1,458 @@
+:root {
+    --vert: rgb(0, 105, 0);
+    --vertclair: rgb(52, 180, 52);
+    --bronze: rgb(112, 91, 27);
+    --silver: rgb(148, 148, 148);
+    --gold: rgb(255, 190, 0);
+    --platinum: rgb(175, 225, 255);
+    --heavenly: rgb(210, 142, 255);
+    
+    --normal: #c5b5b5;
+    --common: #37a915;
+    --uncommon: #5580f3;
+    --rare: #a74192;
+    --epic: #ffb00f;
+    --exotic: #ff6337;
+    --divine: #f44336;
+}
+.ui.positive.button.disabled { background-image: linear-gradient(to right, var(--vert), var(--vertclair))!important; }
+#tab1>table .ui.green.button, #tab3>table .ui.green.button,
+.ui.green.label, .ui.green.labels .label, .ui.positive.button, .ui.positive.buttons .button {
+    background: linear-gradient(to right, var(--vert), var(--vertclair))!important;
+    border-color: transparent!important;
+}
+
+.ui.inverted.green.button, .ui.inverted.green.buttons .button {
+    background-color: transparent;
+    -webkit-box-shadow: 0 0 0 2px var(--vert) inset!important;
+    box-shadow: 0 0 0 2px var(--vert) inset!important;
+    color: var(--vert);
+    text-shadow: 0 0 13px var(--vertclair)!important;
+}
+
+.ui.basic.green.button {
+    -webkit-box-shadow: 0 0 0 1px var(--vertclair) inset!important;
+    box-shadow: 0 0 0 1px var(--vertclair) inset!important;
+}
+
+.Normal {
+    color: var(--normal)!important;
+    text-shadow: 0 0 13px!important; 
+}
+
+.Common {
+    color: var(--common)!important;
+    text-shadow: 0 0 13px!important; 
+}
+
+.Uncommon {
+    color: var(--uncommon)!important;
+    text-shadow: 0 0 13px!important; 
+}
+
+.Rare {
+    color: var(--rare)!important;
+    text-shadow: 0 0 13px!important; 
+}
+
+.Epic {
+    color: var(--epic)!important;
+    text-shadow: 0 0 13px!important; 
+}
+
+
+.Exotic {
+    color: var(--exotic)!important;
+    text-shadow: 0 0 13px!important;
+}
+
+.Divine {
+    color: var(--divine)!important;
+    text-shadow: 0 0 13px!important;
+}
+
+.Bronze {
+    color: var(--bronze) !important;
+    text-shadow: 0 0 13px;
+}
+
+.Silver {
+    color: var(--silver) !important;
+    text-shadow: 0 0 13px;
+}
+
+.Gold {
+    color: var(--gold) !important;
+    text-shadow: 0 0 13px;
+}
+
+.Platinum {
+    color: var(--platinum) !important;
+    text-shadow: 0px 0px 13px rgb(0, 70, 255);
+}
+
+.Heavenly {
+    color: var(--Heavenly) !important;
+    text-shadow: 0 0 13px rgb(75, 4, 122);
+}
+
+i.green.icon {
+    color: var(--vert)!important;
+}
+
+.icon.fa, .icon.fas {
+    font-family: "Font Awesome 5 Pro";
+    font-weight: 900;
+}
+
+#body, .pusher {
+    font-family: 'Electrolize', sans-serif !important;
+    background: center / cover no-repeat url(images/bg.jpg) !important;
+    font-size: 17px;
+}
+
+#imagecontainer {
+    height: 250px;
+}
+
+#imagecash{
+    background: center / contain no-repeat;
+    height: 100%;
+    width: 100%;
+}
+
+.pusher {
+    background-image: url(images/bg.jpg);
+    background-attachment: fixed;
+    background-size: cover;
+    cursor: url("images/normal.cur"), pointer;
+}
+
+#imagecontainer:active #imagecash,
+.USEFFECT {
+    animation: 0.25s UseEffect ease!important;
+}
+
+@keyframes UseEffect {
+    0% {
+        transform: scale(1, 1);
+    }
+    50% {
+        transform: scale(0.9, 0.9);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
+
+.cash:hover, a,
+.button:hover {
+    cursor: url("images/hand.cur"), pointer!important;
+}
+
+#top-menu {
+    width: 101%;
+    position: fixed;
+    margin-top: 0;
+    z-index: 2;
+}
+
+#colonne-m {
+    text-align: center;
+    padding-left: 4rem;
+    padding-right: 0rem;
+    width: 40%;
+    position: fixed;
+}
+
+#colonne-d {
+    text-align: center;
+    padding-left: 1rem;
+    padding-right: 0rem;
+    width: 57%;
+    left: 39%;
+}
+
+.surc {
+    text-align: center;
+    height: 60%;
+    overflow: auto;
+}
+
+.centrer {
+    text-align: center;
+}
+
+.title {
+    text-align: center;
+    font-size: 3vh;
+    font-family: Anton;
+    margin: 2.5vh 0vh 0vh 0vh;
+    color: var(--vert);
+}
+
+.ui.inverted.green.menu, .ui.inverted.menu .green.active.item {
+    background: linear-gradient(to right, var(--vert), var(--vertclair));
+}
+
+#OTitle .ui.label { font-size: 2.5vh; }
+
+#objective .ui.label,
+#OTitle .ui.label,
+#ORequired .ui.label,
+#weapon .ui.label,
+#announce .ui.label {
+    background-color: rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 0px 10px 0px currentColor;
+    -moz-box-shadow: 0px 0px 10px 0px currentColor;
+    box-shadow: 0px 0px 10px 0px currentColor;
+    border: 1px solid currentColor;
+    color: currentColor
+}
+
+.vert {
+    color: var(--vert)!important;
+    text-shadow: 0 0 12px!important;
+}
+
+.gris {
+    color: rgb(150, 150, 150)!important;
+}
+
+.rouge {
+    color: rgb(229, 46, 35)!important;
+}
+
+.jaune {
+    color: #FFF000!important;
+}
+
+.blanc {
+    color: #FFF!important;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+}
+
+.type2, .ui.message .header {
+    font-family: 'Anton', sans-serif !important;
+}
+
+.ui.list .list>a.item i.icon, .ui.list>a.item i.icon {
+    color: currentColor!important;
+}
+
+.ui.button, .type1, .ui.header {
+    font-family: 'Electrolize', sans-serif !important;
+    font-weight: unset;
+}
+
+.SuccessText {
+    font-weight: bold;
+    color: #FF0;
+    font-size: 2.75vh;
+    font-family: 'Electrolize', sans-serif !important;
+}
+
+.money {
+    background-image: url(images/cash.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 1em;
+    display: inline-block;
+    opacity: 1;
+    margin: 0 0 -.25rem 0;
+    width: 1.15em;
+    height: 1.15em;
+    text-decoration: inherit;
+    text-align: center;
+    -webkit-font-smoothing: antialiased;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.ui.black.message, .ui.inverted.message {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.text {
+    color: #FFF;
+}
+
+.ui.selection.active.dropdown {
+    border-color: rgba(239, 239, 239, 0.5);
+}
+
+.ui.selection.dropdown {
+    background: rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 1);
+    cursor: url("images/hand.cur"), pointer;
+}
+
+.ui.selection.active.dropdown .menu {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.ui.dropdown .menu {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.ui.selection.visible.dropdown>.text:not(.default) {
+    color: rgba(255, 255, 255, 1);
+}
+
+.ui.dropdown .menu>.item:hover {
+    color: var(--vert);
+}
+
+.ui.dropdown .menu>.item.active {
+    color: var(--vert);
+}
+
+.ui.dropdown .menu>.item {
+    color: rgb(255, 255, 255);
+}
+
+body ::-webkit-scrollbar-thumb {
+    border-radius: 0;
+    background: linear-gradient(to bottom, var(--vertclair), var(--vert));
+}
+
+body ::-webkit-scrollbar-thumb:hover {
+    background: var(--vert);
+}
+
+body ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.ui.grid>[class*="very relaxed"].row>.column, .ui[class*="very relaxed"].grid>.column:not(.row), .ui[class*="very relaxed"].grid>.row>.column {
+    padding-left: 0rem;
+    padding-right: 0rem;
+}
+
+.shadow {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.azn {
+    background-color: rgba(0, 105, 0, .15);
+    box-shadow: inset 0 0 15px 15px rgba(0, 105, 0, .15);
+
+}
+.azn-active {
+    background-color: rgba(52, 180, 52, .15);
+    box-shadow: inset 0 0 15px 15px rgba(52, 180, 52, .5);
+}
+
+.pushable>.pusher {
+    overflow-y: auto;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.topmenu-space {
+    padding: 4vh;
+}
+
+.ui.message {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border: none;
+}
+.ui.inverted.table tr td {
+    border-color: rgba(0, 0, 0, 0.1)!important;
+}
+
+.ui.divider:not(.vertical):not(.horizontal) {
+    border-color: rgba(255, 255, 255, 0.05)!important;
+}
+
+.ui.inverted.table {
+    background-color: rgba(0, 0, 0, 0.1)!important;
+}
+
+.trs {
+    background-color: transparent!important;
+}
+
+.ui.buttons .or:before {
+    position: absolute;
+    text-align: center;
+    border-radius: .5em;
+    content: 'or';
+    top: 0%;
+    left: 0%;
+    text-shadow: none;
+    margin-top: 0px;
+    margin-left: -15px;
+    width: 30px;
+    height: 100%;
+    line-height: 250%;
+    font-style: normal;
+    font-weight: normal;
+    -webkit-box-shadow: inset 0 0 15px 5px rgba(0,0,0, 0.75);
+    box-shadow: inset 0 0 15px 5px rgba(0,0,0, 0.75);
+    background-color: rgba(0, 0, 0, 0.35);
+    color: rgb(255, 255, 255);
+}
+
+.ui.buttons .or {
+    z-index: 1;
+}
+
+#imagecontainer {
+    position: relative;
+    min-height: 150px;
+    width: 100%;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.35);
+    border-radius: .25em;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+#cash {
+    position: absolute;
+    z-index: 10;
+    margin-top: -20px;
+    width: 80%;
+    margin-left: 10%;
+    padding: 5px 0px;
+    border-radius: 0.25em;
+    box-shadow: 0 0 20px 15px rgba(0,0,0, 0.25);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.ui.selection.list .list>.item, .ui.selection.list>.item {
+    color: white!important;
+}
+
+.type2 .Silver {
+    text-shadow: none!important;
+}
+
+.alert {
+    background: rgba(0,0,0, 0.5) !important;
+    color: white !important;
+    position: fixed !important;
+    top: 5px;
+    right: 5px;
+    min-width: 100px;
+    z-index: 2;
+}
