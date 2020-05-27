@@ -98,7 +98,7 @@ var load = function () {
 };
 
 function exportSave() {
-	$("#exportBody").html("<textarea id='saveCode'>" + btoa(JSON.stringify(p)) + "</textarea>");
+	$("#exportBody").html("<textarea id='saveCode'>" + btoa(encodeURIComponent(JSON.stringify(p))) + "</textarea>");
 	var copyText = document.getElementById("saveCode");
 	copyText.select();
 	copyText.setSelectionRange(0, 99999);
@@ -117,7 +117,7 @@ var importSave = function () {
 
 var restoreSave = function (save) {
 	try {
-		var decoded = atob(save);
+		var decoded = decodeURIComponent(atob(save));
 		JSON.parse(decoded);
 		if (decoded) {
 			localStorage.setItem("idleFive4", decoded);
