@@ -109,7 +109,7 @@ function exportSave() {
   }
 
 var importSave = function () {
-	var save = prompt("Paste the code previously obtained here");
+	var save = prompt("将先前获得的存档代码粘贴到此处");
 	if (save) {
 		restoreSave(save);
 	}
@@ -132,7 +132,7 @@ var restoreSave = function (save) {
 };
 
 var confirmReset = function () {
-	var r = confirm("Do you really want to reset all your stats ?");
+	var r = confirm("您真的要重置所有统计信息吗？");
 	if (r == true) {
 		canSave = 0;
 		localStorage.clear();

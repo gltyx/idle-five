@@ -129,7 +129,7 @@ function ClickWeapon() {
 function AddPrestige() {
 	if (p.rank >= p.prestige.price[0]) {
 		if (p.cash >= p.prestige.price[1]) {
-			var r = confirm("Would you like to reset your character to get some bonuses ?");
+			var r = confirm("你想重置你的角色来获得一些奖励吗?");
 			if (r == true) {
 				p.points = Math.trunc(p.rank / 200);
 				p.Weapon.Power = 0.5;
