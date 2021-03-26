@@ -26,7 +26,7 @@ var cnItems = {
     'Close': '关闭',
     'Donate': '捐赠',
     'Fist': '拳头',
-    'Fleeca Heist': '弗莱卡抢劫',
+    'Fleeca Heist': '飞车抢劫',
     'Current version v': '当前版本 v',
     'Cocaine': '可卡因',
     'Time Trial': '计时赛',
