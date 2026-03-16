@@ -1,8 +1,6 @@
-const version = "v4.5";
-var alert = 0;
-var CASHPS = 0;
-var WEAPON_MULTIPLIER = 0;
-var p = {
+const version = "v5.85";
+var notify_time = 0;
+const DEFAULT = {
 	//DEFAULT VARS
 	DateStarted: getDate(),
 	fl: 1,
@@ -19,7 +17,7 @@ var p = {
 		level: 1,
 		bonus: 1,
 		price: [0, 0],
-		multipliers: [0, 0], //Cash - Damage
+		multipliers: [0, 0, 0], //Cash - Damage - Stealth
 	},
 	points: 0,
 	quest: {
@@ -33,17 +31,26 @@ var p = {
 	succes: [],
 	WeaponBought: [1],
 	WeaponType: [],
-	playTime: 0,
-	TotalClicks: 0,
 	tutorial: 0,
-	CompletedQuests: 0,
-	spentpoints: 0,
+	stats: {
+		spentpoints: 0,
+		totalplaytime: 0,
+		completedquests: 0,
+		totalclicks: 0,
+		totalweaponsbought: 0,
+		totalweaponrerolled: 0,
+		highestrank: 0,
+		totalspentcash: 0,
+		totalcash: 0,
+		character_totalspentcash: 0,
+		character_totalcash: 0,
+	}
 };
 
+var p = DEFAULT; 
+
 $(document).ready(function () {
-	if (localStorage.getItem("idleFive4") != null) {
-		load();
-	}
+	if (localStorage.getItem("idleFive5") != null) load();
 	setInterval(function () {
 		idleFiveLoop();
 	}, 1000);
@@ -51,19 +58,26 @@ $(document).ready(function () {
 	UpdateTexts();
 	ClickEvents();
 	SuccessCount();
-	getCashPS();
 	getPrestigePrice();
 	MissionList();
 	WeaponList();
+	idleFiveLoop();
 	showTutorial(p.tutorial);
-	WEAPON_MULTIPLIER = GetWeaponMult();
 	$('.ui.sidebar').sidebar('hide');
 });
 
 function idleFiveLoop() {
 	//DEBUG
+	if (p.stats.totalcash < 0) p.stats.totalcash = 0;
+	if (p.stats.totalspentcash < 0) p.stats.totalspentcash = 0;
+	if (p.stats.character_totalcash < 0) p.stats.character_totalcash = 0;
+	if (p.stats.character_totalspentcash < 0) p.stats.character_totalspentcash = 0;
 	if (p.cash !== p.cash) p.cash = 0;
-	p.cash = Math.round(p.cash * 100) / 100;
+	p.cash = truncate2(p.cash);
+	for (var stat in p.stats) {
+		if (p.stats[stat] !== p.stats[stat]) p.stats[stat] = 0;
+		if (p.stats[stat] < 0) p.stats[stat] = 0;
+	}
 	for (var m in missions) {
 		if (p.missions[m] == null) p.missions[m] = 0;
 	}
@@ -73,11 +87,11 @@ function idleFiveLoop() {
 	}
 	for (var s in success)
 		if (p.succes[s] == null) p.succes[s] = 0;
-	for (var wtype = 0; wtype < 8; wtype++)
+	for (var wtype = 0; wtype < 9; wtype++)
 		if (p.WeaponType[wtype] == null) p.WeaponType[wtype] = 0;
 
 	//UPDATE VARS
-	p.playTime++;
+	p.stats.totalplaytime++;
 	if (p.prestige.level > 1) p.prestige.bonus = 1 + (p.prestige.level * 0.1) - 0.1;
 	let rank = 0;
 	for (var i in p.missions) {
@@ -89,32 +103,39 @@ function idleFiveLoop() {
 	p.rank = rank;
 	if (p.quest.type == 2 && p.rank >= p.quest.objective[0]) getRewards();
 	if (p.quest.type == 1 && p.quest.progression >= p.quest.objective[0]) getRewards();
+	if (p.quest.type === 3 && _.min(p.Stars.slice(1)) === 10) NewObjective();
 	if (p.rank >= p.prestige.price[0]) {
 		if (p.cash >= p.prestige.price[1]) btnPrestigeE();
 		else btnPrestigeD();
 	} else btnPrestigeD();
-	p.cash += CASHPS;
+	p.cash += getCashPS();
+	p.stats.totalcash += getCashPS();
+	p.stats.character_totalcash += getCashPS();
 	if (p.fl == 1) showTutorialDIV();
-	if (alert > 0) alert--;
+	if (notify_time > 0) notify_time--;
 	else $("#announce").hide();
 	if (p.quest.progression == undefined) p.quest.progression = 0;
 	p.points = Math.round(p.points * 100) / 100;
 	UpdateUI();
-	save();
+	UpdateTabs();
 }
 
 function getCashPS() {
-	CASHPS = 0;
+	let CASHPERSECOND = 0;
 	for (var m in missions) {
 		if (p.missions[m] > 0) {
-			CASHPS += (missions[m].value * p.missions[m]) * (p.prestige.bonus + (p.prestige.multipliers[0] * 0.1));
+			CASHPERSECOND += (missions[m].value * p.missions[m]) * (p.prestige.bonus + (p.prestige.multipliers[0] * 0.1));
 		}
 	}
+	return CASHPERSECOND;
 }
 
 function ClickWeapon() {
-	p.cash += p.Weapon.Power * (WEAPON_MULTIPLIER + ((p.prestige.bonus + p.prestige.multipliers[1]) * 0.1) - 0.1);
-	p.TotalClicks++;
+	let CASH_PER_CLICK = p.Weapon.Power * (GetWeaponMult(p.Weapon.Id) + ((p.prestige.bonus + p.prestige.multipliers[1]) * 0.1) - 0.1);
+	p.cash += CASH_PER_CLICK;
+	p.stats.totalcash += CASH_PER_CLICK;
+	p.stats.character_totalcash += CASH_PER_CLICK;
+	p.stats.totalclicks++;
 	if (p.quest.type == 0) {
 		if (p.quest.progression == undefined || isNaN(p.quest.objective[0]) || isNaN(p.quest.objective[1])) {
 			p.quest.progression = 0;
@@ -124,6 +145,7 @@ function ClickWeapon() {
 		if (p.quest.objective[0] <= 0) getRewards();
 	}
 	UpdateUI();
+	save();
 }
 
 function AddPrestige() {
@@ -134,23 +156,25 @@ function AddPrestige() {
 				p.points = Math.trunc(p.rank / 200);
 				p.Weapon.Power = 0.5;
 				p.Weapon.Id = 0;
-				WEAPON_MULTIPLIER = 1;
 				p.Weapon.Class = "Normal";
 				p.WeaponBought = [];
 				p.WeaponType = [];
 				p.rank = 0;
-				p.cash = 0;
-				CASHPS = 0;
+				p.cash = 0;;
 				p.missions = [];
 				p.prestige.level++;
 				p.quest.type = 0;
 				p.quest.reward = 1;
 				p.quest.progression = 0;
 				p.quest.objective = [10, 0];
+				p.stats.character_totalspentcash = 0;
+				p.stats.character_totalcash = 0;
 				UpdateUI();
 				SuccessCount();
 				hideMenus();
 				getPrestigePrice();
+				idleFiveLoop();
+				save();
 			}
 		}
 	}
@@ -173,13 +197,14 @@ function getRank(rankNBR) {
 	if (rankNBR >= 525) Class = "Silver"; // x25 each
 	if (rankNBR >= 1050) Class = "Gold"; // x50 each
 	if (rankNBR >= 2100) Class = "Platinum"; // x100 each
-	if (rankNBR >= 210000) Class = "Heavenly"; // x1000 each
-	return "<font class='" + Class + "'>" + rankNBR + "</font>";
+	if (rankNBR >= 27000) Class = "Heavenly"; // x1000 each
+	return "<span class='ui content " + Class + "'>" + fix(rankNBR, 3) + "</span>";
 }
 
 function buyG(id) {
 	let COST = weapons[id].price;
 
+	if (p.WeaponBought[id] == 1 && p.Stars[id] === 10) return;
 	if (p.cash >= COST) {
 		p.Weapon.Id = id;
 		p.Weapon.Power = weapons[id].power;
@@ -188,15 +213,23 @@ function buyG(id) {
 			p.WeaponBought[id] = 1;
 			genGun(id);
 			p.WeaponType[weapons[id].type]++;
+			p.stats.totalweaponsbought++;
+			p.stats.totalspentcash += COST;
+			p.stats.character_totalspentcash += COST;
 		} else if (p.cash >= COST * 1.25) {
 			p.cash -= COST * 1.25;
 			genGun2(id);
+			p.stats.totalweaponrerolled++;
+			p.stats.totalspentcash += COST * 1.25;
+			p.stats.character_totalspentcash += COST * 1.25;
 		}
 	}
 	if (p.quest.type === 3 && p.quest.progression >= p.quest.objective[0]) getRewards();
-	WEAPON_MULTIPLIER = GetWeaponMult();
 	SuccessCount();
 	UpdateUI();
+	UpdateTabs();
+	UpdateTexts();
+	save();
 }
 
 function genGun() {
@@ -220,50 +253,41 @@ function genGun() {
 }
 
 function genGun2() {
-	let luck = random(1, 20);
-	let quality = random(1, 100); // 3 Stars
+	let quality = _.random(1, 1017); // 3-10 Stars
+	// 3: 40%  = 1–400
+	// 4: 30%  = 401–700
+	// 5: 15%  = 701–850
+	// 6: 10%  = 851–950
+	// 7: 5%   = 951–1000
+	// 8: 1%   = 1001–1010 
+	// 9: .5%% = 1011–1015
+	// 10: .2% = 1016–1017
 
-	if (luck > 10) quality = random(1, 100); //4 Stars
-	if (luck > 12) quality = random(1, 125); //5 Stars
-	if (luck > 14) quality = random(1, 150); //6 Stars
-	if (luck > 16) quality = random(1, 175); //6 Stars
-	if (luck > 18) quality = random(1, 200); //8 Stars
-	if (quality >= 1) {
-		setQuality(3);
-		ALERT("Rolled a " + GenStarLabel(3) + weapons[p.Weapon.Id].name, 3);
-		if (p.quest.type === 3) p.quest.progression = 3;
-	}
-	if (quality > 100) {
-		setQuality(4);
-		ALERT("Rolled a " + GenStarLabel(4) + weapons[p.Weapon.Id].name, 3);
-		if (p.quest.type === 3) p.quest.progression = 4;
-	}
-	if (quality > 125) {
-		setQuality(5);
-		ALERT("Rolled a " + GenStarLabel(5) + weapons[p.Weapon.Id].name, 3);
-		if (p.quest.type === 3) p.quest.progression = 5;
-	}
-	if (quality > 150) {
-		setQuality(6);
-		ALERT("Rolled a " + GenStarLabel(6) + weapons[p.Weapon.Id].name, 3);
-		if (p.quest.type === 3) p.quest.progression = 6;
-	}
-	if (quality > 175) {
-		setQuality(7);
-		ALERT("Rolled a " + GenStarLabel(7) + weapons[p.Weapon.Id].name, 3);
-		if (p.quest.type === 3) p.quest.progression = 7;
-	}
-	if (quality > 200) {
-		setQuality(8);
-		ALERT("Rolled a " + GenStarLabel(8) + weapons[p.Weapon.Id].name, 3);
-		if (p.quest.type === 3) p.quest.progression = 8;
+	let qualityMap = [
+		{ min: 1, max: 400, quality: 3 },
+		{ min: 401, max: 700, quality: 4 },
+		{ min: 701, max: 850, quality: 5 },
+		{ min: 851, max: 950, quality: 6 },
+		{ min: 951, max: 1000, quality: 7 },
+		{ min: 1001, max: 1010, quality: 8 },
+		{ min: 1011, max: 1015, quality: 9 },
+		{ min: 1016, max: 1017, quality: 10 },
+	];
+
+	for (let i = 0; i < qualityMap.length; i++) {
+		if (quality >= qualityMap[i].min && quality <= qualityMap[i].max) {
+			setQuality(qualityMap[i].quality);
+			ALERT("Rolled a " + GenStarLabel(qualityMap[i].quality) + " " + weapons[p.Weapon.Id].name, 3);
+			if (p.quest.type === 3) p.quest.progression = qualityMap[i].quality;
+			break;
+		}
 	}
 }
 
 function ALERT(text, seconds) {
 	$("#announce-text").html(text);
 	$("#announce").show();
-	alert = seconds;
+	notify_time = seconds;
 }
 
 function setQuality(Stars) {
@@ -277,33 +301,41 @@ function setQuality(Stars) {
 	if (Stars == 5) p.Weapon.Class = "Rare";
 	if (Stars == 6) p.Weapon.Class = "Epic";
 	if (Stars == 7) p.Weapon.Class = "Exotic";
+
+	// REAL SHIT
 	if (Stars == 8) p.Weapon.Class = "Divine";
+	if (Stars == 9) p.Weapon.Class = "Universal";
+	if (Stars == 10) p.Weapon.Class = "Dimensional";
 
 	if (Stars > p.Stars[p.Weapon.Id]) p.Stars[p.Weapon.Id] = Stars;
 }
 
-function GetWeaponMult() {
-	let MULTIPLIER = 0;
+function GetWeaponMult(weaponId) {
+	let MULTIPLIER = 1;
+	if (p.Stars[weaponId] == 1) MULTIPLIER = 0.5;
+	if (p.Stars[weaponId] == 2) MULTIPLIER = 0.75;
+	if (p.Stars[weaponId] == 3) MULTIPLIER = 1;
+	if (p.Stars[weaponId] == 4) MULTIPLIER = 1.25;
+	if (p.Stars[weaponId] == 5) MULTIPLIER = 1.5;
+	if (p.Stars[weaponId] == 6) MULTIPLIER = 1.75;
+	if (p.Stars[weaponId] == 7) MULTIPLIER = 2;
 
-	if (p.Stars[p.Weapon.Id] == 1) MULTIPLIER = 0.5;
-	if (p.Stars[p.Weapon.Id] == 2) MULTIPLIER = 0.75;
-	if (p.Stars[p.Weapon.Id] == 3) MULTIPLIER = 1;
-	if (p.Stars[p.Weapon.Id] == 4) MULTIPLIER = 1.25;
-	if (p.Stars[p.Weapon.Id] == 5) MULTIPLIER = 1.5;
-	if (p.Stars[p.Weapon.Id] == 6) MULTIPLIER = 1.75;
-	if (p.Stars[p.Weapon.Id] == 7) MULTIPLIER = 2;
-	if (p.Stars[p.Weapon.Id] == 8) MULTIPLIER = 3;
+	// REAL SHIT
+	if (p.Stars[weaponId] == 8) MULTIPLIER = 3;
+	if (p.Stars[weaponId] == 9) MULTIPLIER = 5;
+	if (p.Stars[weaponId] == 10) MULTIPLIER = 10;
 	return MULTIPLIER;
 }
 
 function useW(id) {
 	if (p.WeaponBought[id] == 1 && p.Weapon.Id != id) {
 		p.Weapon.Id = id;
-		WEAPON_MULTIPLIER = GetWeaponMult();
 		p.Weapon.Power = weapons[id].power;
 		setQuality(p.Stars[p.Weapon.Id]);
 	}
 	UpdateUI();
+	UpdateTabs();
+	save();
 }
 
 function BuyM(id, qty) {
@@ -311,6 +343,8 @@ function BuyM(id, qty) {
 
 	if (price <= p.cash) {
 		p.cash -= price;
+		p.stats.totalspentcash += price;
+		p.stats.character_totalspentcash += price;
 		if (p.missions[id] == null) {
 			p.missions[id] = qty;
 			p.rank += qty;
@@ -322,52 +356,69 @@ function BuyM(id, qty) {
 			if (p.quest.progression >= p.quest.objective[0]) getRewards();
 			else p.quest.progression += qty;
 		}
+		if (p.rank > p.stats.highestrank) p.stats.highestrank = p.rank;
 		SuccessCount();
-		getCashPS();
-		UpdateUI();
+		UpdateMissionsDiv(id);
+		save();
 	}
 }
 
 function SellM(id, qty) {
-	let price = GetMissionSPrice(id, qty);
-
+	let price = GetMissionSellPrice(id, qty);
 	if (p.missions[id] == null) p.missions[id] = 0;
 	p.cash += price;
+	p.stats.totalspentcash -= price;
+	p.stats.character_totalspentcash -= price;
 	if (p.missions[id] >= qty) {
 		p.missions[id] -= qty;
 		p.rank -= qty;
-	} else {
-		p.missions[id] = null;
 	}
 	if (p.quest.type == 1 && id == p.quest.objective[1]) p.quest.progression -= qty;
 	SuccessCount();
-	getCashPS();
-	UpdateUI();
+	UpdateMissionsDiv(id);
+	save();
 }
 
 function GetMissionPrice(id, qty) {
-	let owned = 0;
-	let total = 0;
+    const owned = p.missions[id] || 0;
+    const base = new BigNumber(missions[id].price);
+    const modifier = new BigNumber(GetMissionPriceModifier(owned));
 
-	if (p.missions[id] != null) owned = p.missions[id];
-	CurPrice = (missions[id].price * Math.pow(missions[id].modifier, owned));
-	for (var value = 0; value < qty; value++) {
-		Newprice = (missions[id].price * Math.pow(missions[id].modifier, owned + value));
-		total += Newprice;
-	}
-	return Math.round((total * 100) / 100);
+    if (modifier.eq(1)) {
+        return base.times(qty).toNumber();
+    }
+
+    const start = modifier.pow(owned);
+    const factor = modifier.pow(qty).minus(1).div(modifier.minus(1));
+
+    return base.times(start).times(factor).toNumber();
 }
 
-function GetMissionSPrice(id, qty) {
-	let owned = 0;
-	let total = 0;
+function GetMissionPriceModifier(amount) {
+	Mapping = {
+		1:       1.10,
+		50:      1.05,
+		100:     1.025,
+		500:     1.015,
+		1000:    1.005,
+		5000:    1.0025,
+		10000:   1.0010,
+		50000:   1.0005,
+		100000:  1.00025,
+		500000:  1.000125
+	};
+	return Mapping[Object.keys(Mapping).reverse().find(key => amount >= key)] || 1.15;
+}
 
-	if (p.missions[id] != null) owned = p.missions[id];
-	for (var value = 0; value < qty; value++) {
-		Newprice = (missions[id].price * Math.pow(missions[id].modifier, owned - value));
-		total += Newprice;
-	}
-	return Math.round(total / 2);
+function GetMissionSellPrice(id, qty) {
+    const owned = p.missions[id] || 0;
+    const base = new BigNumber(missions[id].price);
+    const modifier = new BigNumber(GetMissionPriceModifier(owned));
+
+    const start = modifier.pow(owned - qty);
+    const factor = modifier.pow(qty).minus(1).div(modifier.minus(1));
+
+    return base.times(start).times(factor).toNumber();
 }
 
 function buyV(id) {
@@ -375,22 +426,33 @@ function buyV(id) {
 
 	if (p.points >= price) {
 		p.points -= price;
-		p.spentpoints += price;
+		p.stats.spentpoints += price;
 		p.prestige.multipliers[vehicules[id].type]++;
 	}
 	VehicleList();
 	UpdateUI();
+	save();
 }
 
 function GetQuestTitle() {
 	let TYPE = p.quest.type;
 	let MESSAGE = "";
 
-	if (TYPE === 0) MESSAGE = "Use your weapon <span class='jaune'>" + p.quest.objective[0] + "</span> times more.";
-	if (TYPE === 1) MESSAGE = "Increase by <span class='jaune'>" + (p.quest.objective[0] - p.quest.progression) + "</span> levels <span class='jaune'>" + missions[p.quest.objective[1]].name + "</span>";
+	if (TYPE === 0) MESSAGE = "Use your weapon <span class='jaune'>" + p.quest.objective[0] + "</span> times";
+	if (TYPE === 1) MESSAGE = "Increase <span class='jaune'>" + missions[p.quest.objective[1]].name + "</span> by <span class='jaune'>" + (p.quest.objective[0] - p.quest.progression) + "</span> levels";
 	if (TYPE === 2) MESSAGE = "Reach the rank " + getRank(p.quest.objective[0]);
-	if (TYPE === 3) MESSAGE = "Obtain a new weapon with " + p.quest.objective[1] + "or more";
+	if (TYPE === 3) MESSAGE = "Buy a weapon with " + p.quest.objective[1] + " or more";
 	return MESSAGE;
+}
+
+function getQuestType(id) {
+	let map = {
+		0: "Use Weapon",
+		1: "Increase Mission",
+		2: "Reach Rank",
+		3: "New Weapon",
+	};
+	return map[id];
 }
 
 function ListMissionsBought() {
@@ -403,126 +465,125 @@ function ListMissionsBought() {
 }
 
 function NewObjective() {
+	let QUEST = {
+		type: 0,
+		reward: 1,
+		progression: 0,
+		objective: [0, 0],
+	};
 	let filter = ListMissionsBought();
-	let chance = random(0, 30);
-	let maxStars = 0;
+	let chance = _.random(0, 100);
+	QUEST.objective[1] = null;
+	QUEST.type = _.random(0, 3);
+	if (QUEST.type === 1 && filter.length === 0) QUEST.type = 0;
+	if (QUEST.type === 3 && _.min(p.Stars.slice(1) === 10)) QUEST.type = 0;
 
-	for (let star in p.Stars) {
-		if (p.Stars[star] < 8) maxStars = 1;
-	}
-	let type = random(0, 3);
-	if (maxStars === 1) type = random(0, 2);
+	const rewardMap = [
+		{ min: 0, max: 9, reward: 0.05 },
+		{ min: 10, max: 29, reward: 0.1 },
+		{ min: 30, max: 49, reward: 0.25 },
+		{ min: 50, max: 79, reward: 0.5 },
+		{ min: 80, max: 94, reward: 1.0 },
+		{ min: 95, max: 98, reward: 1.5 },
+		{ min: 99, max: 100, reward: 2.5 },
+	];
 
-	if (p.rank >= 50) {
-		chance = chance = random(0, 50);
-		if (p.rank >= 250) chance = random(0, 80);
-		if (p.rank >= 1000) chance = random(0, 100);
+	const goal_main_Map = [
+		{ chance: 10, objective: [1, 10] },
+		{ chance: 30, objective: [10, 30] },
+		{ chance: 60, objective: [50, 100] },
+		{ chance: 80, objective: [100, 300] },
+		{ chance: 95, objective: [300, 500] },
+		{ chance: 99, objective: [500, 1000] },
+	];
+
+	const goal_mission_Map = [
+		{ chance: 10, objective: [1, 5] },
+		{ chance: 30, objective: [5, 10] },
+		{ chance: 60, objective: [10, 25] },
+		{ chance: 80, objective: [25, 50] },
+		{ chance: 95, objective: [50, 80] },
+		{ chance: 99, objective: [80, 10] },
+	];
+
+	let selectedReward = rewardMap.find(r => chance >= r.min && chance <= r.max);
+
+	let selectedObjective = goal_main_Map.find(o => chance < o.chance);
+	// USE X TIMES WEAPON 
+	if (QUEST.type === 0) {
+		QUEST.progression = 0;
+		QUEST.objective[0] = _.random(selectedObjective.objective[0], selectedObjective.objective[1]);
+		QUEST.reward = selectedReward.reward;
 	}
-	if (type == 0) {
-		p.quest.progression = 0;
-		if (chance < 30) {
-			p.quest.objective[0] = random(10, 30);
-			p.quest.reward = 0.1;
-		}
-		if (chance >= 30) {
-			p.quest.objective[0] = random(50, 100);
-			p.quest.reward = 0.2;
-		}
-		if (chance >= 80) {
-			p.quest.objective[0] = random(100, 300);
-			p.quest.reward = 0.5;
-		}
-	}
-	if (type == 1) {
+
+	// INCREASE X TIMES MISSION
+	if (QUEST.type === 1) {
+		let selectedObjective2 = goal_mission_Map.find(o => chance < o.chance);
 		let objective = filter[Math.floor(Math.random() * filter.length)];
-		p.quest.objective = [p.missions[objective], objective];
-		if (chance < 30) {
-			p.quest.objective[0] += random(1, 10);
-			p.quest.reward = 0.1;
-		}
-		if (chance >= 30 && chance < 60) {
-			p.quest.objective[0] += random(20, 30);
-			p.quest.reward = 0.2;
-		}
-		if (chance >= 60 && chance < 80) {
-			p.quest.objective[0] += random(25, 50);
-			p.quest.reward = 0.4;
-		}
-		if (chance >= 80) {
-			p.quest.objective[0] += random(50, 80);
-			p.quest.reward = 0.5;
-		}
-		p.quest.progression = p.missions[objective];
+
+		QUEST.objective = [p.missions[objective], objective];
+		QUEST.objective[0] = _.random(selectedObjective2.objective[0], selectedObjective2.objective[1]);
+		if (QUEST.objective[1] == null) QUEST.objective[1] = 0;
+		QUEST.reward = selectedReward.reward;
 	}
-	if (type == 2) {
-		if (chance < 30) {
-			p.quest.objective[0] = p.rank + random(5, 10);
-			p.quest.reward = 0.1;
-		}
-		if (chance >= 30) {
-			p.quest.objective[0] = p.rank + random(10, 30);
-			p.quest.reward = 0.2;
-		}
-		if (chance >= 50) {
-			p.quest.objective[0] = p.rank + random(50, 100);
-			p.quest.reward = 0.4;
-		}
-		if (chance >= 80) {
-			p.quest.objective[0] = p.rank + random(100, 300);
-			p.quest.reward = 0.5;
-		}
-		p.quest.objective[1] = null;
-		p.quest.progression = p.rank;
+	// REACH RANK X
+	if (QUEST.type === 2) {
+		QUEST.objective[0] = p.rank + _.random(selectedObjective.objective[0], selectedObjective.objective[1]);
+		QUEST.progression = p.rank;
+		QUEST.reward = selectedReward.reward;
 	}
-	if (type == 3) {
-		if (chance >= 0) {
-			p.quest.objective[0] = 3;
-			p.quest.objective[1] = GenStarLabel(3);
-			p.quest.reward = 0.1;
+
+	// BUY WEAPON WITH X STARS
+	if (QUEST.type === 3) {
+		let lowest = _.min(p.Stars.slice(1));
+
+		const minStarChanceMap = [
+			{ star: 1, minChance: 0 },
+			{ star: 2, minChance: 0 },
+			{ star: 3, minChance: 0 },
+			{ star: 4, minChance: 30 },
+			{ star: 5, minChance: 60 },
+			{ star: 6, minChance: 80 },
+			{ star: 7, minChance: 95 },
+			{ star: 8, minChance: 99 },
+		];
+
+		if (lowest >= 4 && chance < 30) chance = 30;
+		if (lowest >= 5 && chance < 60) chance = 60;
+		if (lowest >= 6 && chance < 80) chance = 80;
+		if (lowest >= 7 && chance < 95) chance = 95;
+		if (lowest >= 8) chance = 100;
+
+		for (let i = minStarChanceMap.length - 1; i >= 0; i--) {
+			if (chance >= minStarChanceMap[i].minChance) {
+				QUEST.objective[0] = minStarChanceMap[i].star;
+				QUEST.objective[1] = GenStarLabel(minStarChanceMap[i].star);
+				break;
+			}
 		}
-		if (chance >= 20) {
-			p.quest.objective[0] = 4;
-			p.quest.objective[1] = GenStarLabel(4);
-			p.quest.reward = 0.2;
-		}
-		if (chance >= 40) {
-			p.quest.objective[0] = 5;
-			p.quest.objective[1] = GenStarLabel(5);
-			p.quest.reward = 0.3;
-		}
-		if (chance >= 60) {
-			p.quest.objective[0] = 6;
-			p.quest.objective[1] = GenStarLabel(6);
-			p.quest.reward = 0.4;
-		}
-		if (chance >= 85) {
-			p.quest.objective[0] = 7;
-			p.quest.objective[1] = GenStarLabel(7);
-			p.quest.reward = 0.5;
-		}
-		if (chance >= 95) {
-			p.quest.objective[0] = 8;
-			p.quest.objective[1] = GenStarLabel(8);
-			p.quest.reward = 1.0;
-		}
-		p.quest.progression = 0;
+
+		QUEST.reward = selectedReward.reward;
+		QUEST.progression = 0;
 	}
-	p.quest.type = type;
+	p.quest = QUEST;
+	//console.log("Type: " + getQuestType(QUEST.type) + " | Objective: " + QUEST.objective[1]);
+	//console.log("Reward: " + QUEST.reward + " CP" + " | Chance: " + chance + "%");
+	save();
 }
 
 function getRewards() {
-	p.points += p.quest.reward;
-	p.CompletedQuests++;
+	p.points += p.quest.reward + (p.quest.reward * (p.prestige.multipliers[2] * 0.1));
+	p.stats.completedquests++;
 	NewObjective();
-	$("#colonne-m").append("<div id='objective' class='ui black message'><i id='close' class='close icon'></i><div class='header vert'>Objective completed !</div>New objective :<br /> " + GetQuestTitle() + "</div>");
 }
 
 function ReasignPoints() {
-	p.points += p.spentpoints;
-	p.spentpoints = 0;
+	p.points += p.stats.spentpoints;
+	p.stats.spentpoints = 0;
 	p.prestige.multipliers = [0, 0, 0];
 	VehicleList();
 	UpdateUI();
+	save();
 }
 
 function GenStarLabel(Stars) {
@@ -534,6 +595,8 @@ function GenStarLabel(Stars) {
 	if (Stars == 6) Class = "Epic";
 	if (Stars == 7) Class = "Exotic";
 	if (Stars == 8) Class = "Divine";
+	if (Stars == 9) Class = "Universal";
+	if (Stars == 10) Class = "Dimensional";
 	if (Stars != 0) return "<div class='ui horizontal label " + Class + "'> " + Stars + " <i class='fitted star icon'></i></div>";
 	else return "";
 }
@@ -547,6 +610,7 @@ function getQuality(Stars) {
 	if (Stars == 6) QUALITY = "Epic";
 	if (Stars == 7) QUALITY = "Exotic";
 	if (Stars == 8) QUALITY = "Divine";
+	if (Stars == 9) QUALITY = "Universal";
+	if (Stars == 10) QUALITY = "Dimensional";
 	return QUALITY;
-
 }
